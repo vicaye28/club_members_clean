@@ -25,24 +25,6 @@ select count(full_name) from club_member; -- 2007 records
 - find and deal with any null values 
 - ensure correct format of names, address etc*/ 
 
-/*create table cleaned_club_member(
-member_id serial,
-full_name varchar (100),
-first_name Varchar(50),
-last_name Varchar(100),
-age int,
-marital_status varchar(50),
-email varchar(150),
-phone_number varchar (20),
-full_address varchar (150),
-street_address varchar(100),
-job_title
-
-);
- 
--- GENERATED ALWAYS AS (regexp_replace(split_part(trim(lower(full_name)), ' ', 1), '\W+', '', 'g')), -- replace full_name with first name, makign sure no white spaces or non alphabetical values*/
-
-
 Create table if not exists cleaned_club_member 
 as select * from club_member;
 
@@ -63,22 +45,6 @@ WHEN length(trim(lower(full_name))) - length(replace(trim(lower(full_name)), ' '
 ELSE substring_index(substring_index(trim(lower(full_name)), ' ', 2), " ", -1)
 END);
 
-/* this was a pain to figure out but I'm glad I got there in the end. Knowing how I work, I'm sure there is a more efficient way to write this but that is a journey for another day.
-the star of the show is substring_index(trim(lower(full_name))- lets go inside out:
-		- lower: puts the name in lower case
-        - trim: removes leading and trailing speaces like "   April  " to "April"
-        - substring_index: substring_index(string, delimiter, number)- delimiter is what the function looks for to seperate indexes. number is the number of times the delimiter occurs and the index(s)
-           before it. would have made my life easier if I knew this from the outright instead of assuming it meant index number. T_T can be positive(starts searching left) or negative(starts searching right)
-
-first_name- pretty straight foward. we use the regexp_replace function to replace any non-alphabetical values with nothing, removing them from the first word of full name.ALTER
-
-
-last_name - T_T yep, this took ages to figure out and everything I could find was either using JSON(???) or postgreSQL.... anyway, its a straightfoward case statement if you break it down.
-			the condition is length of full_name (this function counts the spaces) - lenght of full_name with no spaces. This will tell us number of spaces in full name, telling us how many parts to the last name.
-            for example- Jason De La Cruz- length=16, jasondelacruz- lenght = 13 meaning 3 spaces so 3 parts to last name.
-            we now need to concat the parts- this was the tricky part-only because I didnt know the parts of the syntax.
-            substring_index(substring_index(trim(lower(full_name)), ' ', 2), " ", -1)- this gives us the first part of the last name- why? work inside out.
-            first substring_index counts the spaces from the left- and the index before that- Jason de la- but really Jason de. to get the de do another substring_index, this time using -1, to count from the right.*/
 
 select * from cleaned_club_member;
 
@@ -111,7 +77,7 @@ END);
 
 -- nothing is returned 
 
--- lets fix the formatting of values within marital status table
+-- lets fix the formatting of values within the marital status table
 
 update cleaned_club_member 
 set maritial_status = (case
